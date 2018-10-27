@@ -20,7 +20,7 @@ export const Top= top
  * @param [thisArg] - optional "this" to call inputFn with. By default, will pass through `this`. if null, will pass nothing ever, but is faster.
  * @returns {function} a "wrapped" version of the inputFn with stateful behaviors
  */
-export function stateful( inputFn, thisArg){
+export function stateful( inputFn, { thisArg}= {}){
 	const
 	  name= inputFn.name+ "Stateful",
 	  wrapper= {[ name]: thisArg=== undefined? ( ...args)=> {
