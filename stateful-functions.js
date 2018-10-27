@@ -16,22 +16,25 @@ export function useState( fn, val){
 
 	// state
 	let _val= val
+	function getValue(){
+		return _val
+	}
 	function setValue( val){
 		const effected= val!== _val
-		val= _val
-		if(effected){
+		_val= val
+		if( effected){
 			raiseEffect(fn)
 		}
 	}
 
-	const state= [ _val, setvalue]
+	const state= [ getValue, setValue]
 	_state.set( state)
 	return state
 }
 
 export function useEffect( fn, cb){
 	const effects= fn[ effect]|| (fn[ effect]= [])
-	effects.push( fn)
+	effects.push( cb)
 }
 
 export function Context( val){

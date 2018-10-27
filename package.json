@@ -1,0 +1,27 @@
+{
+	"name": "stateful-functions",
+	"version": "1.0.0",
+	"description": "",
+	"main": "stateful-functions.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"example": "node -r esm .example"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://archive.eldergods.com/stateful-functions"
+	},
+	"keywords": [],
+	"author": "jauntywunderkind",
+	"license": "MIT",
+	"module": "stateful-functions.js",
+	"esm": true,
+	"@std/esm": {
+		"cjs": {
+			"namedExports": true
+		}
+	},
+	"devDependencies": {
+		"esm": "^3.0.84"
+	}
+}
