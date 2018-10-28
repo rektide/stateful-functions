@@ -7,7 +7,6 @@ export class Context{
 	}
 }
 
-
 let currentContext= new WeakMap()
 export function useContext( ctx){
 	const
@@ -36,7 +35,6 @@ export function useContext( ctx){
 		found.listeners.push( top)
 		return found.value
 	}
-	console.log("context failed")
 }
 
 export function provideContext( ctx, val){
@@ -48,6 +46,7 @@ export function provideContext( ctx, val){
 		const changed= existing.value!== val
 		if( changed){
 			existing.value= val
+			console.log("feeding", existing.listeners.length)
 			for( let listener of existing.listeners){
 				RaiseEffect( listener)
 			}

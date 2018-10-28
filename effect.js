@@ -1,20 +1,26 @@
-import { Effect} from "./symbol.js" 
+import { Effect, EffectCleanup} from "./symbol.js"
 import { Top} from "./stateful.js"
 
 export function raiseEffect( stateful){
-	const effects= stateful[ Effect]
-	if( !effects){
-		retrun
+	const effect= stateful[ Effect]
+	if( !effect){
+		return
 	}
-	effects.forEach( effect=> effect( stateful))
+	const cleanup= effect( stateful)
+	if( cleanup){
+		stateful[ EffectCleanup]= cleanup
+	}
 }
 export const RaiseEffect= raiseEffect
 
 export function useEffect( cb){
 	const
 	  stateful= Top(),
-	  effects= stateful[ Effect]|| (stateful[ Effect]= [])
-	effects.push( cb)
+	  cleanup= stateful[ EffectCleanup]
+	if( cleanup){
+		cleanup( stateful)
+	}
+	stateful[ Effect]= cb
 }
 export const UseEffect= useEffect
 export default useEffect
