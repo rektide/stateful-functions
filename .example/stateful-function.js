@@ -10,14 +10,14 @@ function a( name){
 	function reset(){
 		setClicks( 0)
 	}
-	useEffect( _=> {
-		console.log(JSON.stringify({ type: "effect", name, clicks: getClicks()}))
-		return ()=> console.log(JSON.stringify({ type: "effect-cleanup", name, clicks: getClicks()}))
-	})
-	const c= useContext( ctx)
-	if( c){
-		console.log(JSON.stringify({ type: "context-found", name }))
+	const context= useContext( ctx)
+	if( context){
+		console.log(JSON.stringify({ type: "context-found", name, context }))
 	}
+	useEffect( _=> {
+		console.log(JSON.stringify({ type: "effect", name, context, clicks: getClicks()}))
+		return ()=> console.log(JSON.stringify({ type: "effect-cleanup", name, context, clicks: getClicks()}))
+	})
 	return {
 		click,
 		reset

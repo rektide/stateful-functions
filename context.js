@@ -7,34 +7,45 @@ export class Context{
 	}
 }
 
+function walkStackTo( ctx, stack= Stack()){
+	for( let i= stack.length- 1; i>= 0; i--){
+		const
+		  provider= stack[ i],
+		  ctxs= provider[ ContextSymbol],
+		  value= ctxs&& ctxs.get( ctx)
+		if( value!== undefined){
+			return {
+			  ctx,
+			  provider,
+			  value
+			}
+		}
+	}
+}
+
 let currentContext= new WeakMap()
 export function useContext( ctx){
 	const
 	  top= Top(),
-	  cached= currentContext.get( top), // provider we are bound to now
-	  stack= Stack()
-	for( let i= stack.length- 1; i>= 0; --i){
-		const
-		  cursor= stack[ i],
-		  map= cursor[ ContextSymbol],
-		  found= map&& map.get( ctx)
-		if( !found){
-			continue
+	  cached= currentContext.get( top),
+	  provider= walkStackTo( ctx),
+	  value= provider&& provider.value
+	if( cached!== value){
+		currentContext.set( top, value)
+		if( cached){
+			// de-listen to whomever we were listening to & listen to this new
+			const
+			  listeners= cached.listeners,
+			  i= listeners.indexOf( cached)
+			listeners.splice( i, 1)
 		}
-		if( cached!== found){
-			currentContext.set( ctx, cursor)
-			if( cached){
-				// de-listen to whomever we were listening to & listen to this new 
-				const
-				  listeners= cached[ ContextSymbol].get( ctx).listeners,
-				  i= listeners.indexOf( top)
-				listeners.splice( i, 1)
-			}
-		}
-		console.log("found", found.value)
-		found.listeners.push( top)
-		return found.value
 	}
+	if( !provider){
+		return
+	}
+	console.log("useContext", JSON.stringify(provider))
+	provider.value.listeners.push( top)
+	return provider.value.value
 }
 
 export function provideContext( ctx, val){
@@ -46,7 +57,6 @@ export function provideContext( ctx, val){
 		const changed= existing.value!== val
 		if( changed){
 			existing.value= val
-			console.log("feeding", existing.listeners.length)
 			for( let listener of existing.listeners){
 				RaiseEffect( listener)
 			}
