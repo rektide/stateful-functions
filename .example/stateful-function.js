@@ -3,7 +3,7 @@ import { stateful, useState, useEffect, useContext, provideContext, Context, Top
 const ctx= new Context()
 
 function a( name){
-	const [ getClicks, setClicks] = useState( 0)
+	const [ , setClicks, getClicks] = useState( 0)
 	function click(){
 		setClicks( getClicks()+ 1)
 	}

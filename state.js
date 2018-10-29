@@ -26,7 +26,7 @@ export function useState( val){
 	}
 
 	// marshal, save & return
-	const state= [ getValue, setValue, _val]
+	const state= [ _val, setValue, getValue]
 	_state.set( state)
 	return state
 }
