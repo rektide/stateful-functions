@@ -34,28 +34,38 @@ export function stateful( inputFn, { thisArg}= {}){
 		return inputFn( ...args)
 	  },
 	  wrapper= {[ name]: function( ...args){
+		// add ourselves to stack
 		const oldStack= _stack
 		execStack= _stack= _stack.concat( wrapped)
 
+		// cleanup any existing run
 		const cleanup= wrapped[ EffectCleanup]
 		if( cleanup){
 			cleanup()
 			wrapped[ EffectCleanup]= null
 		}
 
+		// save args & run
 		wrapped[ Args]= args
 		const
 		  val= call( args),
 		  effect= wrapped[ Effect]
+		// run new effects
 		if( effect){
+			// clear effects
 			wrapped[ Effect]= null
+			// run
 			const cleanup= effect()
 			if( cleanup){
+				// save cleanup
 				wrapped[ EffectCleanup]= cleanup
 			}
 		}
+
+		// we already ran- we will provide no longer
+		wrapped[ Context]= null
+		// restore stack
 		_stack= oldStack
-		//wrapped[ Context]= null
 		return val
 	  }},
 	  wrapped= wrapper[ name]

@@ -3,7 +3,7 @@ import { stateful, useState, useEffect, useContext, provideContext, Context, Top
 const ctx= new Context()
 
 function a( name){
-	const [ , setClicks, getClicks] = useState( 0)
+	const [ clicks, setClicks, getClicks] = useState( 0)
 	function click(){
 		setClicks( getClicks()+ 1)
 	}
@@ -12,11 +12,11 @@ function a( name){
 	}
 	const context= useContext( ctx)
 	if( context){
-		console.log(JSON.stringify({ type: "contxt", name, context }))
+		console.log(JSON.stringify({ type: "ctx", name, context }))
 	}
 	useEffect( _=> {
-		console.log(JSON.stringify({ type: "effect", name, context, clicks: getClicks()}))
-		return ()=> console.log(JSON.stringify({ type: "cleanp", name, context, clicks: getClicks()}))
+		console.log(JSON.stringify({ type: "eff", name, context, clicks}))
+		return ()=> console.log(JSON.stringify({ type: "cln", name, context, clicks}))
 	})
 	return {
 		click,
@@ -58,18 +58,25 @@ function doAsInterleaved(){
 
 function doContext(){
 	console.log(JSON.stringify({ type: "doContext", step: 0}))
-	stateful( a)( "no-context-1") // doesnt find context doesn't show
-	const runner= stateful( function exec(){
-		stateful( a)( "no-context-2") // doesn't find context
+	const fn= stateful( a)
+	fn( "no-context-setup")
+	const runner= stateful( function exec( pass){
+		fn( "no-context-running-"+ pass)
 		provideContext( ctx,{ magic: "content"})
-		stateful( a)( "doContext-content") // finds context!
 		provideContext( ctx,{ magic: "beans"})
-		//stateful( a)( "doContent-beans") // finds context!
+		fn( "has-context-beans-"+ pass)
+		provideContext( ctx,{ magic: "beanstalk"})
+		provideContext( ctx,{ magic: "clouds"})
+		fn( "has-context-clouds-"+ pass)
+		provideContext( ctx,{ magic: "castle"})
 	})
-	runner()
-	console.log("break")
-	runner()
-	stateful( a)( "no-context-3") // again does not find context
+	fn("runner-defined")
+	runner("run1")
+	fn("run-1")
+
+	console.log()
+	runner("run2")
+	fn("run-2")
 }
 
 if( typeof require!== undefined&& require.main=== module){

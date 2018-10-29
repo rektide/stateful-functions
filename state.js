@@ -1,4 +1,5 @@
 import { Top} from "./stateful.js"
+import { Args} from "./symbol.js"
 
 const _state= new WeakMap()
 
@@ -19,14 +20,15 @@ export function useState( val){
 	function setValue( val){
 		const effected= val!== _val
 		_val= val
+		state[ 0]= val
 		if( effected){
-			stateful()
+			stateful( ...stateful[ Args])
 		}
 	}
 
 	// marshal, save & return
 	const state= [ _val, setValue, getValue]
-	_state.set( state)
+	_state.set( stateful, state)
 	return state
 }
 export const UseState= useState

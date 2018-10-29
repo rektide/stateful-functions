@@ -11,7 +11,7 @@ function walkStackTo( ctx, stack= Stack()){
 		  provider= stack[ i],
 		  ctxs= provider[ ContextSymbol],
 		  value= ctxs&& ctxs.get( ctx)
-		if( value!== undefined){
+		if( value){
 			return {
 			  ctx,
 			  provider,
@@ -39,14 +39,11 @@ export function useContext( ctx){
 				listeners.splice( i, 1)
 			}
 		}
-		if( provider){
+		if( provider&& provider.value){
 			provider.value.listeners.push( top)
 		}
 	}
-	if( !provider){
-		return
-	}
-	return provider.value.value
+	return provider&& provider.value&& provider.value.value
 }
 
 export function provideContext( ctx, val){
