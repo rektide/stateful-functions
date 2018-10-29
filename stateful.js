@@ -28,14 +28,14 @@ export function stateful( inputFn, { thisArg}= {}){
 	let execStack
 	const
 	  name= inputFn.name+ "Stateful",
-	  call= thisArg=== undefined? ( ...args)=> {
+	  call= thisArg=== undefined? ( args)=> {
 		return inputFn.call( this, ...args)
-	  }: thisArg!== null? function(){
+	  }: thisArg!== null? function( args){
 		return inputFn.call( thisArg, ...args)
-	  }: function(){
+	  }: function( args){
 		return inputFn( ...args)
 	  },
-	  wrapper= {[ name]: function(){ 
+	  wrapper= {[ name]: function( ...args){
 		const oldStack= _stack
 		execStack= _stack= _stack.concat( wrapped)
 
@@ -45,7 +45,7 @@ export function stateful( inputFn, { thisArg}= {}){
 			wrapped[ EffectCleanup]= null
 		}
 
-		const val= call()
+		const val= call( args)
 		_stack= oldStack
 
 		function raise(){
