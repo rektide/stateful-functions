@@ -1,7 +1,5 @@
 import { Stack, Top} from "./stateful.js"
-import { Context as ContextSymbol, ContextValue} from "./symbol.js"
-import { RaiseEffect} from "./effect.js"
-
+import { Args, Context as ContextSymbol, ContextValue} from "./symbol.js"
 export class Context{
 	constructor(){
 	}
@@ -37,31 +35,35 @@ export function useContext( ctx){
 			const
 			  listeners= cached.listeners,
 			  i= listeners.indexOf( cached)
-			listeners.splice( i, 1)
+			if( i!== -1){
+				listeners.splice( i, 1)
+			}
+		}
+		if( provider){
+			provider.value.listeners.push( top)
 		}
 	}
 	if( !provider){
 		return
 	}
-	console.log("useContext", JSON.stringify(provider))
-	provider.value.listeners.push( top)
 	return provider.value.value
 }
 
 export function provideContext( ctx, val){
 	const
 	  stateful= Top(),
-	  map= stateful[ ContextSymbol]|| (stateful[ ContextSymbol]= new WeakMap()),
-	  existing= map.get( ctx)
-	if( existing){
-		const changed= existing.value!== val
+	  contexts= stateful[ ContextSymbol]|| (stateful[ ContextSymbol]= new WeakMap()),
+	  context= contexts.get( ctx)
+	if( context){
+		const changed= context.value!== val
 		if( changed){
-			existing.value= val
-			for( let listener of existing.listeners){
-				RaiseEffect( listener)
+			context.value= val
+			for( let listener of context.listeners){
+				const args= listener[ Args]
+				listener( ...args)
 			}
 		}
 	}else{
-		map.set( ctx, { value: val, listeners: []})
+		contexts.set( ctx, { value: val, listeners: []})
 	}
 }

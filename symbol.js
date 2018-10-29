@@ -6,4 +6,8 @@ export const
   context= Symbol.for("stateful-function:context"),
   Context= context,
   contextValue= Symbol.for("stateful-function:context-value"),
-  ContextValue= contextValue
+  ContextValue= contextValue,
+  rerender= Symbol.for("stateful-function:rerender"),
+  Rerender= rerender,
+  args= Symbol.for("stateful-function:args"),
+  Args= args

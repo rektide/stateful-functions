@@ -1,6 +1,4 @@
-import setImmediateShim from "set-immediate-shim"
-import { RaiseEffect} from "./effect.js"
-import { EffectCleanup} from "./symbol.js"
+import { Args, Context, Effect, EffectCleanup} from "./symbol.js"
 
 //// state holding ////
 // generally for internal use
@@ -45,16 +43,19 @@ export function stateful( inputFn, { thisArg}= {}){
 			wrapped[ EffectCleanup]= null
 		}
 
-		const val= call( args)
-		_stack= oldStack
-
-		function raise(){
-			const oldStack= _stack
-			_stack= execStack
-			RaiseEffect( wrapped)
-			_stack= oldStack
+		wrapped[ Args]= args
+		const
+		  val= call( args),
+		  effect= wrapped[ Effect]
+		if( effect){
+			wrapped[ Effect]= null
+			const cleanup= effect()
+			if( cleanup){
+				wrapped[ EffectCleanup]= cleanup
+			}
 		}
-		wrapped[ EffectCleanup]= raise
+		_stack= oldStack
+		//wrapped[ Context]= null
 		return val
 	  }},
 	  wrapped= wrapper[ name]

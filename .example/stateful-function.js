@@ -12,11 +12,11 @@ function a( name){
 	}
 	const context= useContext( ctx)
 	if( context){
-		console.log(JSON.stringify({ type: "context-found", name, context }))
+		console.log(JSON.stringify({ type: "contxt", name, context }))
 	}
 	useEffect( _=> {
 		console.log(JSON.stringify({ type: "effect", name, context, clicks: getClicks()}))
-		return ()=> console.log(JSON.stringify({ type: "effect-cleanup", name, context, clicks: getClicks()}))
+		return ()=> console.log(JSON.stringify({ type: "cleanp", name, context, clicks: getClicks()}))
 	})
 	return {
 		click,

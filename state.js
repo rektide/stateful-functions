@@ -1,4 +1,3 @@
-import { RaiseEffect} from "./effect.js"
 import { Top} from "./stateful.js"
 
 const _state= new WeakMap()
@@ -21,7 +20,7 @@ export function useState( val){
 		const effected= val!== _val
 		_val= val
 		if( effected){
-			RaiseEffect( stateful)
+			stateful()
 		}
 	}
 
