@@ -54,7 +54,7 @@ export function stateful( inputFn, { thisArg}= {}){
 			RaiseEffect( wrapped)
 			_stack= oldStack
 		}
-		(val&& val.then)? val.then( raise): setImmediateShim( raise)
+		wrapped[ EffectCleanup]= raise
 		return val
 	  }},
 	  wrapped= wrapper[ name]
