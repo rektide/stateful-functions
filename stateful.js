@@ -27,38 +27,17 @@ export function stateful( inputFn, { thisArg}= {}){
 	let execStack
 	const
 	  name= inputFn.name+ "Stateful",
-	  wrapper= {[ name]: thisArg=== undefined? ( ...args)=> {
-		const oldStack= _stack
-		execStack= _stack= _stack.concat( wrapped)
-		const val= inputFn.call( this, ...args)
-		_stack= oldStack
-
-		function raise(){
-			const oldStack= _stack
-			_stack= execStack
-			RaiseEffect( wrapped)
-			_stack= oldStack
-		}
-		(val&& val.then)? val.then( raise): setImmediateShim( raise)
-		return val
+	  call= thisArg=== undefined? ( ...args)=> {
+		return inputFn.call( this, ...args)
 	  }: thisArg!== null? function(){
-		const oldStack= _stack
-		execStack= _stack= _stack.concat( wrapped)
-		const val= inputFn.call( thisArg, ...args)
-		_stack= oldStack
-
-		function raise(){
-			const oldStack= _stack
-			_stack= execStack
-			RaiseEffect( wrapped)
-			_stack= oldStack
-		}
-		(val&& val.then)? val.then( raise): setImmediateShim( raise)
-		return val
+		return inputFn.call( thisArg, ...args)
 	  }: function(){
+		return inputFn( ...args)
+	  },
+	  wrapper= {[ name]: function(){ 
 		const oldStack= _stack
 		execStack= _stack= _stack.concat( wrapped)
-		const val= inputFn( ...args)
+		const val= call()
 		_stack= oldStack
 
 		function raise(){
