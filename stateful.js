@@ -1,5 +1,6 @@
 import setImmediateShim from "set-immediate-shim"
 import { RaiseEffect} from "./effect.js"
+import { EffectCleanup} from "./symbol.js"
 
 //// state holding ////
 // generally for internal use
@@ -37,6 +38,13 @@ export function stateful( inputFn, { thisArg}= {}){
 	  wrapper= {[ name]: function(){ 
 		const oldStack= _stack
 		execStack= _stack= _stack.concat( wrapped)
+
+		const cleanup= wrapped[ EffectCleanup]
+		if( cleanup){
+			cleanup()
+			wrapped[ EffectCleanup]= null
+		}
+
 		const val= call()
 		_stack= oldStack
 
