@@ -11,12 +11,18 @@
 		"type": "git",
 		"url": "https://archive.eldergods.com/stateful-functions"
 	},
-	"keywords": [ "react-hooks", "stateful"],
+	"keywords": [
+		"react-hooks",
+		"stateful"
+	],
 	"author": "jauntywunderkind",
 	"license": "MIT",
 	"module": "stateful-functions.js",
 	"esm": true,
 	"devDependencies": {
 		"esm": "^3.0.84"
+	},
+	"dependencies": {
+		"set-immediate-shim": "^2.0.0"
 	}
 }

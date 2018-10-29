@@ -1,4 +1,4 @@
-import { Effect, EffectCleanup} from "./symbol.js"
+import { Effect, EffectCleanup, EffectCleanupPending} from "./symbol.js"
 import { Top} from "./stateful.js"
 
 export function raiseEffect( stateful){
@@ -8,6 +8,7 @@ export function raiseEffect( stateful){
 	}
 	const cleanup= effect( stateful)
 	if( cleanup){
+		// record cleanup for next use
 		stateful[ EffectCleanup]= cleanup
 	}
 }
@@ -18,7 +19,9 @@ export function useEffect( cb){
 	  stateful= Top(),
 	  cleanup= stateful[ EffectCleanup]
 	if( cleanup){
+		// a new cb is showing up, cleanup old
 		cleanup( stateful)
+		stateful[ EffectCleanup]= null
 	}
 	stateful[ Effect]= cb
 }

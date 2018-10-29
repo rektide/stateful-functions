@@ -1,7 +1,10 @@
+import setImmediateShim from "set-immediate-shim"
+import { RaiseEffect} from "./effect.js"
+
 //// state holding ////
 // generally for internal use
 
-const _stack= []
+let _stack= []
 export function stack(){
 	return _stack
 }
@@ -21,22 +24,50 @@ export const Top= top
  * @returns {function} a "wrapped" version of the inputFn with stateful behaviors
  */
 export function stateful( inputFn, { thisArg}= {}){
+	let execStack
 	const
 	  name= inputFn.name+ "Stateful",
 	  wrapper= {[ name]: thisArg=== undefined? ( ...args)=> {
-		_stack.push( wrapped)
+		const oldStack= _stack
+		execStack= _stack= _stack.concat( wrapped)
 		const val= inputFn.call( this, ...args)
-		_stack.pop()
+		_stack= oldStack
+
+		function raise(){
+			const oldStack= _stack
+			_stack= execStack
+			RaiseEffect( wrapped)
+			_stack= oldStack
+		}
+		(val&& val.then)? val.then( raise): setImmediateShim( raise)
 		return val
 	  }: thisArg!== null? function(){
-		_stack.push( wrapped)
+		const oldStack= _stack
+		execStack= _stack= _stack.concat( wrapped)
 		const val= inputFn.call( thisArg, ...args)
-		_stack.pop()
+		_stack= oldStack
+
+		function raise(){
+			const oldStack= _stack
+			_stack= execStack
+			RaiseEffect( wrapped)
+			_stack= oldStack
+		}
+		(val&& val.then)? val.then( raise): setImmediateShim( raise)
 		return val
 	  }: function(){
-		_stack.push( wrapped)
+		const oldStack= _stack
+		execStack= _stack= _stack.concat( wrapped)
 		const val= inputFn( ...args)
-		_stack.pop()
+		_stack= oldStack
+
+		function raise(){
+			const oldStack= _stack
+			_stack= execStack
+			RaiseEffect( wrapped)
+			_stack= oldStack
+		}
+		(val&& val.then)? val.then( raise): setImmediateShim( raise)
 		return val
 	  }},
 	  wrapped= wrapper[ name]

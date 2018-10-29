@@ -3,6 +3,8 @@ export const
   Effect= effect,
   effectCleanup= Symbol.for("stateful-function:effect-cleanup"),
   EffectCleanup= effectCleanup,
+  effectCleanupPending= Symbol.for("stateful-function:effect-cleanup-pending"),
+  EffectCleanupPending= effectCleanupPending,
   context= Symbol.for("stateful-function:context"),
   Context= context,
   contextValue= Symbol.for("stateful-function:context-value"),
