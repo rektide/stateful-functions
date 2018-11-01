@@ -13,15 +13,14 @@ export function useState( val){
 	}
 
 	// state
-	let _val= val
 	function getValue(){
-		return _val
+		return state[ 0]
 	}
 	function setValue( val){
 		const effected= val!== _val
-		_val= val
 		state[ 0]= val
 		if( effected){
+			// rerun ourselves
 			stateful( ...stateful[ Args])
 		}
 	}
