@@ -1,7 +1,8 @@
 export function symlinkProps( src, target){
 	const symlinks= {}
 	for( const descriptor of getAllPropertyDescriptors(  src)){
-		symlinks[ descriptor.name]= {
+		const name= descriptor.name|| descriptor.symbol
+		symlinks[ name]= {
 			configurable: descriptor.configurable,
 			enumerable: descriptor.enumerable,
 			get: function(){
