@@ -1,23 +1,26 @@
 import { Stack, Top} from "./stateful.js"
-import { Args, Context as ContextSymbol, ContextValue} from "./symbol.js"
+import { Args} from "./symbol.js"
 export class Context{
 	constructor(){
 	}
 }
 
-function walkStackTo( ctx, stack= Stack()){
-	for( let i= stack.length- 1; i>= 0; i--){
+// 
+const _contexts= new WeakMap()
+
+function walkContextsTo( ctx, stack= Stack()){
+	while( stack.length){
 		const
-		  provider= stack[ i],
-		  ctxs= provider[ ContextSymbol],
-		  value= ctxs&& ctxs.get( ctx)
+		  ctxs= _contexts.get( stack),
+		  value= ctx&& ctx.get( ctx)
 		if( value){
 			return {
 			  ctx,
-			  provider,
+			  stateful: stack[ stack.length- 1],
 			  value
 			}
 		}
+		stack= stack[ stack.length- 2]
 	}
 }
 
@@ -26,7 +29,7 @@ export function useContext( ctx){
 	const
 	  top= Top(),
 	  cached= currentContext.get( top),
-	  provider= walkStackTo( ctx),
+	  provider= walkContextsTo( ctx),
 	  value= provider&& provider.value
 	if( cached!== value){
 		currentContext.set( top, value)
@@ -46,21 +49,26 @@ export function useContext( ctx){
 	return provider&& provider.value&& provider.value.value
 }
 
-export function provideContext( ctx, val){
+export function provideContext( ctx, value){
 	const
-	  stateful= Top(),
-	  contexts= stateful[ ContextSymbol]|| (stateful[ ContextSymbol]= new WeakMap()),
-	  context= contexts.get( ctx)
-	if( context){
-		const changed= context.value!== val
-		if( changed){
-			context.value= val
-			for( let listener of context.listeners){
-				const args= listener[ Args]
-				listener( ...args)
-			}
-		}
+	  stack= Stack(),
+	  hadCtxs= _contexts.get( stack),
+	  newCtxs= !hadCtxs&& new WeakMap(),
+	  ctxs= hadCtxs|| newCtxs,
+	  oldCtx= hadCtxs&& hadCtxs.get( ctx),
+	  changed= oldCtx&& oldCtx.value!== value
+	if( newCtxs){
+		_contexts.set( stack, newCtxs)
+	}
+	if( !oldCtx){
+		ctxs.set( ctx, { value, listeners: []})
 	}else{
-		contexts.set( ctx, { value: val, listeners: []})
+		oldCtx.value= value
+	}
+	if( changed){
+		for( let listener of oldCtx.listeners){
+			const args= listener[ Args]
+			listener( ...args)
+		}
 	}
 }
