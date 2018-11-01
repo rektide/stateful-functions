@@ -1,4 +1,4 @@
-import { Args, Context, Effect, EffectCleanup} from "./symbol.js"
+import { Args, Effect, EffectCleanup} from "./symbol.js"
 
 //// state holding ////
 // generally for internal use
@@ -20,9 +20,9 @@ export const Top= top
  * Turn a vanilla function into a stateful function
  * @param {function} inputFn - a function to build a stateful wraper for
  * @param [thisArg] - optional "this" to call inputFn with. By default, will pass through `this`. if null, will pass nothing ever, but is faster.
- * @returns {function} a "wrapped" version of the inputFn with stateful behaviors
+ * @returns {function} a "wrapped" stateul version of the inputFn with stateful behaviors
  */
-export function stateful( inputFn, { thisArg}= {}){
+export function stateful( inputFn, { ontick, thisArg}= {}){
 	let execStack
 	const
 	  name= inputFn.name+ "Stateful",
@@ -36,7 +36,7 @@ export function stateful( inputFn, { thisArg}= {}){
 	  wrapper= {[ name]: function( ...args){
 		// add ourselves to stack
 		const oldStack= _stack
-		execStack= _stack= _stack.concat( wrapped)
+		execStack= _stack= _stack.concat( oldStack, wrapped)
 
 		// cleanup any existing run
 		const cleanup= wrapped[ EffectCleanup]
@@ -50,6 +50,11 @@ export function stateful( inputFn, { thisArg}= {}){
 		const
 		  val= call( args),
 		  effect= wrapped[ Effect]
+		// our "render" event just happened
+		if( ontick){
+			ontick( val, wrapped)
+		}
+
 		// run new effects
 		if( effect){
 			// clear effects
@@ -62,14 +67,11 @@ export function stateful( inputFn, { thisArg}= {}){
 			}
 		}
 
-		// we already ran- we will provide no longer
-		wrapped[ Context]= null
 		// restore stack
 		_stack= oldStack
 		return val
 	  }},
 	  wrapped= wrapper[ name]
-	// wrapped.fn= fn
 	return wrapped
 }
 export const Stateful= stateful
